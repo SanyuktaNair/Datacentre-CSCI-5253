@@ -1,23 +1,26 @@
+version: '3'
+
 services:
   db:
     image: "postgres:16"
     environment:
-      - POSTGRES_PASSWORD=sanyu123
       - POSTGRES_USER=sanyukta
+      - POSTGRES_PASSWORD=sanyu123
       - POSTGRES_DB=shelter
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data 
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
-
   etl:
-    build: .
-    command:  https://shelterdata.s3.amazonaws.com/shelter1000.csv
+    build: . 
     depends_on:
       - db
-    
+    # command: "url.csv"
+
+
 
 
 volumes:
   db_data:
+  
