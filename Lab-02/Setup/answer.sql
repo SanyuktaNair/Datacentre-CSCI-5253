@@ -1,5 +1,5 @@
 --Q1
-SELECT animal_type, count(*) FROM animal GROUP BY animal_type;
+SELECT animal_type, count(*) FROM animal_data GROUP BY animal_type;
 
 --Q2
 SELECT COUNT(animal_id) AS "+More than 1 Outcome"
@@ -30,23 +30,28 @@ LIMIT 5;
 
 
 --Q4
-select age_category , count(*) from (SELECT age_years, outcome_type,
-    CASE
-        WHEN age_years < 1 THEN 'kitten'
-        WHEN age_years > 10 THEN 'seniorCat'
-        ELSE 'adult'
-    END AS age_category
-FROM (SELECT
-    a.animal_type,
-    DATE_PART('year', AGE(o.datetime, a.date_of_birth)) AS age_years,
-    ot.outcome_type 
-FROM
-    animal AS a
-JOIN
-    outcome_events AS o ON a.animal_id = o.animal_id
-JOIN
-    outcome_type AS ot ON ot.outcome_type_id = o.outcome_type_id where outcome_type = 'Adoption' and animal_type = 'Cat')) group by age_category;
+WITH CatAdoptions AS (
+    SELECT
+        a.animal_type,
+        DATE_PART('year', AGE(oe.datetime, a.date_of_birth)) AS age_in_years,
+        oe.outcome_type 
+    FROM
+        animal_data AS a
+    JOIN
+        outcome_events AS oe ON a.animal_id = oe.animal_id
+    WHERE oe.outcome_type = 'Adoption' AND a.animal_type = 'Cat'
+)
 
+SELECT
+    CASE
+        WHEN age_in_years < 1 THEN 'Kitten'
+        WHEN age_in_years > 10 THEN 'Senior Cat'
+        ELSE 'Adult'
+    END AS age_category,
+    outcome_type,
+    COUNT(*) AS count
+FROM CatAdoptions
+GROUP BY age_category;
 --Q5 
 SELECT
     date(datetime) AS "date",
